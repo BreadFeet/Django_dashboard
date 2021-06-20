@@ -1,0 +1,304 @@
+{% load static %}
+
+<!--index.html 상속받은 main 부분의 파일-->
+<script>
+    function display1(da) {
+        Highcharts.chart('container1', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Population under age 5 in 2020'
+            },
+            subtitle: {
+                text: 'Source: mois.go.kr'
+            },
+            accessibility: {
+                announceNewData: {
+                    enabled: true
+                }
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: '# of children under 5'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y}명'
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}명</b> of total<br/>'
+            },
+            series: [
+                {
+                    name: "District",
+                    colorByPoint: true,
+                    data: da
+                }
+            ],
+        });
+    };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function display2(da) {
+        Highcharts.chart('container2', {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'Difference in Population between 2018 and 2020'
+            },
+            subtitle: {
+                text: 'Source: mois.go.kr'
+            },
+            xAxis: {
+                categories: da[0].loc             // x축 지역이름을 받아올 수 있음
+            },
+            yAxis: {
+                title: {
+                    text: '# of population'
+                }
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: da[1]
+        });
+    };
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function display3(x, da) {
+        Highcharts.chart('container3', {
+            chart: {
+                type: 'column',
+                options3d: {
+                    enabled: true,
+                    alpha: 10,
+                    beta: 25,
+                    depth: 70
+                }
+            },
+            title: {
+                text: 'Difference in Population between 2015 and 2020'
+            },
+            subtitle: {
+                text: 'Source: mois.go.kr'
+            },
+            plotOptions: {
+                column: {
+                    depth: 25
+                }
+            },
+            xAxis: {
+                categories: x,
+                labels: {
+                    skew3d: true,
+                    style: {
+                        fontSize: '16px'
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: null
+                }
+            },
+            series: da
+        });
+    };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function display4(da) {
+        Highcharts.chart('container4', {
+            chart: {
+                type: 'area'
+            },
+            title: {
+                text: 'Comparison of Population Density'
+            },
+            subtitle: {
+                text: 'Sources: mois.go.kr'
+            },
+            xAxis: {
+                labels: {
+                    formatter: function () {
+                    return this.value; // clean, unformatted number for year
+            }
+        },
+            },
+            yAxis: {
+                title: {
+                    text: 'Nuclear weapon states'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                }
+            },
+            tooltip: {
+                pointFormat: '{series.name} had stockpiled <b>{point.y:,.0f}</b><br/>warheads in {point.x}'
+            },
+            plotOptions: {
+                area: {
+                    pointStart: 0,
+                    marker: {
+                        enabled: false,
+                        symbol: 'circle',
+                        radius: 2,
+                        states: {
+                            hover: {
+                                enabled: true
+                            }
+                        }
+                    }
+                }
+            },
+            series: da
+        });
+    };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function getData1() {
+        $.ajax({
+            url: 'chart2?cmd=a',
+            datatype: 'json',
+            success: function (data) {
+                display1(data);
+                $.ajax({                     // 하나 불러오자마자 다음 차트 불러오도록 함
+                    url: 'chart2?cmd=b',
+                    datatype: 'json',
+                    success: function (data) {
+                        display2(data);
+                        $.ajax({
+                            url: 'chart2?cmd=c',
+                            datatype: 'json',
+                            success: function (data) {
+                                display3(data[0].loc, data[1])
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+
+    function getData2(loc) {
+        $.ajax({
+            url: 'chart2',
+            data: {cmd: loc},
+            datatype: 'json',
+            success: function(data) {
+                display4(data);
+            }
+        });
+    };
+
+
+    $(document).ready(function() {
+        getData1();                        // 차트 1, 2는 페이지 로딩되자마자 가져옴
+        $('#btn').click(function() {
+            loc = $('#loc').val();
+            getData2(loc);                    // 차트 3는 버튼 클릭 시 가져옴
+        });
+    });
+
+</script>
+
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">ws0615. Chart Presentation</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+            <li class="breadcrumb-item active">Charts</li>
+        </ol>
+        <div class="card mb-4">
+            <div class="card-body">
+                1. Population under age 5 in Seoul in 2020
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-chart-area me-1"></i>
+                Bar Chart
+            </div>
+            <div class="card-body" id="container1"></div>
+            <div class="card-footer small text-muted">Updated on 15 June 2021</div>
+        </div>
+
+
+        <div class="card mb-4">
+            <div class="card-body">
+                2. Population difference in Seoul from 2018 to 2020
+            </div>
+        </div>
+        <div class="card mb-4">           <!--위 차트에서 class 복사해서 같은 css(넓이) 적용되도록 함-->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Line Chart
+                </div>
+                <div class="card-body" id="container2"></div>
+                <div class="card-footer small text-muted">Updated on 15 June 2021</div>
+            </div>
+        </div>
+
+         <div class="card mb-4">
+            <div class="card-body">
+                3. Population Difference in Seoul from 2015 to 2020
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    3D Bar Chart
+               </div>
+                <div class="card-body" id="container3"></div>
+                <div class="card-footer small text-muted">Updated on 16 June 2021 during lecture</div>
+            </div>
+        </div>
+                <div class="card mb-4">
+
+        <div class="card-body">
+            4. Comparison of Population Density
+        </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Area Chart <input type="text" id="loc"><button id="btn">Search</button>
+                </div>
+                <div class="card-body" id="container4"></div>
+                <div class="card-footer small text-muted">Updated on 16 June 2021 during lecture</div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
