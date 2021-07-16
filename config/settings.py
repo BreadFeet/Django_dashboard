@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-pd!0$#q#1!p4s4aij)862j4r5vjw__9_mozp05fm5^&mcb$xu%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = TRUE
 
 ALLOWED_HOSTS = ['*']    # 모든 경로(모바일, 웹)에서 접속이 가능하도록 설정
 

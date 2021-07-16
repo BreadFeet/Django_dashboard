@@ -70,6 +70,7 @@ def chart1(request):
             }]
 
     return HttpResponse(json.dumps(data), content_type='application/json')
+    # 127.0.0.1/chart1으로 데이터가 확인됨 -> open API와 같음
 
 
 def chart2(request):
